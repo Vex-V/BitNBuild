@@ -6,7 +6,7 @@ create extension if not exists vector;
 
 -- ============================================================
 -- Tabular outputs (one table per FAR/setback/height/etc. lookup)
--- Column names mirror the row shapes documented in CLAUDE.md.
+-- Column names mirror the pydantic models in zonal_rag/schemas/output_schemas.py.
 -- Every table carries source_id (which SOURCES entry produced the
 -- row) so re-ingestion can delete-and-replace scoped to one source
 -- without disturbing rows contributed by other sources.

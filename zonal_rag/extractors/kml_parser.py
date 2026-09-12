@@ -1,8 +1,8 @@
 """Parse KML into GeoJSON FeatureCollections, streaming for large files.
 
-Spatial outputs are unaffected by the OpenAI/Supabase migration — per
-CLAUDE.md, `output/spatial/*.geojson` stays as flat files (only tabular
-and RAG data moved into Postgres).
+Spatial outputs are unaffected by the OpenAI/Supabase migration —
+`output/spatial/*.geojson` stays as flat files (only tabular and RAG data
+moved into Postgres).
 """
 
 import json
