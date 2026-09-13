@@ -263,6 +263,14 @@
     background: var(--seq-4); color: #fff; border: 1px solid var(--seq-4);
   }
   .report-button:hover { background: var(--seq-5); }
+  /* WhatsApp green is fixed in both themes; dark text, since white on this
+     green falls well short of readable contrast */
+  .wa-button {
+    display: inline-flex; align-items: center; padding: 5px 11px;
+    background: #25d366; color: #0b0b0b; border: 1px solid #1da851;
+    font-weight: 600; text-decoration: none; white-space: nowrap;
+  }
+  .wa-button:hover { background: #1ebe5b; }
 
   /* ---- table view ------------------------------------------------------ */
   /* Above Leaflet's own controls (which sit up to z-index 1000), or the zoom
@@ -516,6 +524,8 @@
   </div>
 
   <div class="spacer"></div>
+  <a class="wa-button" target="_blank" rel="noopener noreferrer"
+     href="https://api.whatsapp.com/send/?phone=919448197197&amp;text=Garbage+Complaint+%E2%80%94+Central+%232%2C+Jayamahal%0ALocation%3A+Deeproot+linux+office%0AWard%3A+Central+%232+%E2%80%94+Jayamahal%0ASeverity%3A+Minor%0AWaste+Type%3A+Household+Waste%0AGPS%3A+https%3A%2F%2Fmaps.google.com%2F%3Fq%3D13.0026885%2C77.5963976%0APhoto%3A+https%3A%2F%2Ftcldazhypyuutdpoksfx.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fgarbage-photos%2Freports%2F1777703192311-g7a98a.jpg%0APlease+arrange+for+cleanup+at+the+earliest.%0AReported+via+NammaKasa+%28nammakasa.in%29&amp;type=phone_number&amp;app_absent=0">Contact on WhatsApp</a>
   <button id="btn-table" aria-pressed="false">Table view</button>
   <button id="btn-theme" title="Toggle light / dark">&#9681;</button>
 </header>
