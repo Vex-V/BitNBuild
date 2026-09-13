@@ -11,6 +11,7 @@ fastapi>=0.115
 openai>=1.50
 requests>=2.31
 pydantic>=2.7
+fpdf2>=2.8           # ward report PDFs (server/report_pdf.py)
 
 # Local development only; Vercel supplies its own ASGI server.
 uvicorn[standard]>=0.30

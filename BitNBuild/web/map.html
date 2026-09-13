@@ -1186,9 +1186,9 @@
       "In this ward": "Nearby"
     });
 
-    var reportButton = el("button", "report-button", "Download ward report");
+    var reportButton = el("button", "report-button", "Download ward report (PDF)");
     reportButton.onclick = function () {
-      downloadWardReport(p.wardKey);
+      downloadWardReport(p.wardKey, reportButton);
     };
     pBody.appendChild(reportButton);
   }
@@ -1197,43 +1197,42 @@
     if (!wardKey) return Promise.reject(new Error("No ward selected."));
     return fetch("/api/ward-report?ward=" + encodeURIComponent(wardKey))
       .then(function (r) {
-        if (!r.ok) {
-          return r.text().then(function (t) {
-            throw new Error(t || "Could not generate ward report.");
-          });
-        }
-        return r.text();
+        var type = r.headers.get("content-type") || "";
+        if (r.ok && type.indexOf("application/pdf") === 0) return r.blob();
+        // A 200 that is not a PDF means the request reached the wrong route;
+        // say so instead of saving whatever came back as a report.
+        return r.text().then(function (t) {
+          var msg = t;
+          try { msg = JSON.parse(t).error || t; } catch (e) { /* not JSON */ }
+          throw new Error(r.ok
+            ? "The server did not return a PDF — /api/ward-report is not reaching the app."
+            : (msg || "Could not generate ward report."));
+        });
       });
   }
 
-  function downloadWardReport(wardKey) {
-    var button = document.querySelector(".report-button");
-    if (button) {
-      var oldText = button.textContent;
-      button.disabled = true;
-      button.textContent = "Preparing report…";
-    }
+  function downloadWardReport(wardKey, button) {
+    button.disabled = true;
+    button.textContent = "Preparing PDF…";
 
     generateWardReport(wardKey)
-      .then(function (html) {
-        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      .then(function (blob) {
+        var url = URL.createObjectURL(blob);
         var link = document.createElement("a");
-        var filename = "ward-report-" + String(wardKey).replace(/[^a-z0-9]+/gi, "-").toLowerCase() + ".html";
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
+        link.href = url;
+        link.download = "ward-report-" + String(wardKey).replace(/[^a-z0-9]+/gi, "-").toLowerCase() + ".pdf";
         document.body.appendChild(link);
         link.click();
         link.remove();
-        URL.revokeObjectURL(link.href);
+        // revoking in the same tick can cancel the download in some browsers
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
       })
       .catch(function (err) {
         window.alert(err.message || "Could not download ward report.");
       })
       .then(function () {
-        if (button) {
-          button.disabled = false;
-          button.textContent = "Download ward report";
-        }
+        button.disabled = false;
+        button.textContent = "Download ward report (PDF)";
       });
   }
 
