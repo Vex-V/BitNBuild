@@ -258,6 +258,11 @@
   .newsitem .meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
   .note { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
   .desc { font-size: 13px; color: var(--text-secondary); line-height: 1.45; }
+  .report-button {
+    margin-top: 16px; width: 100%; padding: 10px 14px; font-weight: 600;
+    background: var(--seq-4); color: #fff; border: 1px solid var(--seq-4);
+  }
+  .report-button:hover { background: var(--seq-5); }
 
   /* ---- table view ------------------------------------------------------ */
   /* Above Leaflet's own controls (which sit up to z-index 1000), or the zoom
@@ -1180,6 +1185,56 @@
       "Representation": "Who",
       "In this ward": "Nearby"
     });
+
+    var reportButton = el("button", "report-button", "Download ward report");
+    reportButton.onclick = function () {
+      downloadWardReport(p.wardKey);
+    };
+    pBody.appendChild(reportButton);
+  }
+
+  function generateWardReport(wardKey) {
+    if (!wardKey) return Promise.reject(new Error("No ward selected."));
+    return fetch("/api/ward-report?ward=" + encodeURIComponent(wardKey))
+      .then(function (r) {
+        if (!r.ok) {
+          return r.text().then(function (t) {
+            throw new Error(t || "Could not generate ward report.");
+          });
+        }
+        return r.text();
+      });
+  }
+
+  function downloadWardReport(wardKey) {
+    var button = document.querySelector(".report-button");
+    if (button) {
+      var oldText = button.textContent;
+      button.disabled = true;
+      button.textContent = "Preparing report…";
+    }
+
+    generateWardReport(wardKey)
+      .then(function (html) {
+        var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        var link = document.createElement("a");
+        var filename = "ward-report-" + String(wardKey).replace(/[^a-z0-9]+/gi, "-").toLowerCase() + ".html";
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+      })
+      .catch(function (err) {
+        window.alert(err.message || "Could not download ward report.");
+      })
+      .then(function () {
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Download ward report";
+        }
+      });
   }
 
   function newsList(parent, items) {
