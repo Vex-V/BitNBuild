@@ -2,16 +2,77 @@
 
 **[Try it live →](https://bit-n-build-nine.vercel.app/web/map.html)**
 
-Bengaluru's civic data is spread across government PDFs, KML map exports,
-community reporting sites and news coverage, and none of it lines up. This
-project collects it, cleans it and joins it into one database. It then offers
-two ways to explore the result:
+### The problem
 
-- **Ward Atlas.** An interactive map of Bengaluru's 369 GBA wards, with civic
-  reports, 126 metro stations and 16 road-infrastructure projects on it.
-- **Chat.** An assistant that answers questions in plain English from that
-  database. It cites the page of the regulation it used, or links to the place
-  on the map.
+Information about Bengaluru's wards is scattered. Civic complaints sit on
+community reporting sites, zoning rules are buried in long government PDFs, and
+metro and road updates appear only in the news. The 2025 ward redraw means older
+datasets no longer match today's boundaries. A resident cannot easily find out
+what is happening in their ward, who is responsible, or what can be built there.
+
+### How we're solving it
+
+We collect these sources, clean them and join them into one database keyed to
+the 369 wards of 2025. The Ward Atlas shows the result on a map, ward by ward. A
+chat assistant answers questions in plain English and cites the regulation page
+or map location behind each answer. Each ward can be downloaded as a PDF report,
+and a WhatsApp button lets residents file a complaint directly.
+
+## Features
+
+### Ward Atlas map
+
+- **369 GBA wards**, shaded by any of nine metrics: total or unresolved civic
+  reports, reports per sq km, reports per 1,000 residents, civic pressure score,
+  allowed building height, population, population density or area.
+- **A ward panel** with tabs for civic reports (itemised where the source lists
+  them), civic status, people and area, representatives (MLA and MP with
+  photographs) and what lies inside the ward.
+- **126 metro stations**, with lines, status, opening dates and recent news, and
+  each line's route drawn in order.
+- **16 road projects** (flyovers, underpasses, elevated corridors, tunnel
+  roads), with authority, cost, length, expected completion and news.
+- **Ward search** by name, and a **sortable table view** of every ward.
+- **Shareable links** for any view: `?ward=`, `?station=`, `?project=`,
+  `?metric=`, `?view=table` and `?theme=light|dark`.
+- **Light and dark themes.**
+- **Works without the database.** If Supabase is not configured, the map reads
+  the data files committed to the repository.
+
+### Acting on the data
+
+- **Downloadable ward report (PDF)** with the ward's headline figures,
+  priorities, civic reports, population, zoning, representatives and GBA
+  contact, metro stations, road projects, related news and live web results.
+- **Contact on WhatsApp** button, which opens WhatsApp with a garbage complaint
+  already filled in.
+
+### Chat assistant
+
+- **Plain-English answers** from the database, in two modes: **Map** (wards,
+  rankings, reports, stations, projects, "what is near this point") and
+  **Zoning** (planning regulations).
+- **Zoning figures come from rule tables** covering permitted uses, FAR,
+  setbacks, heights, parking, ground coverage, minimum plot size and density,
+  with a link to the exact page of the source PDF.
+- **Map answers link into the map.** Clicking a ward, station or project in an
+  answer opens it on the map without reloading.
+- **Optional live web search** (Tavily) for current news.
+- **Conversations are saved in the browser**, with example questions for each
+  mode and a status line showing whether the server is ready.
+
+### Data pipelines
+
+- **Civic reports** scraped from nammakasa.in and parsed into per-ward counts
+  and itemised reports.
+- **Metro and road news** gathered from Google News RSS and official BMRCL, BBMP,
+  GBA and BDA notices, and tagged with the stations or projects they mention.
+- **Dataset joining** across three sets of ward boundaries from different years,
+  fixing swapped coordinates, duplicate stations, metro route order and missing
+  ward areas.
+- **Zoning ingestion**, which extracts rule tables from regulation PDFs with an
+  LLM, splits the text into 2,629 searchable, embedded clauses, and converts
+  cadastral and land-use KML maps to GeoJSON.
 
 ## How it fits together
 
@@ -275,9 +336,11 @@ zonal_rag/
   extractors/     downloaders, PDF/KML parsing, LLM table extraction, chunking, DB writes
   schemas/        pydantic models for rule rows and text chunks
 server/
-  app.py          FastAPI app: static files, /api/chat, /api/health
+  app.py          FastAPI app: static files, /api/chat, /api/health, /api/ward-report
   agent.py        system prompt and tool-calling loop
   tools.py        tool implementations and the schemas shown to the model
+  report_pdf.py   builds the downloadable ward report PDF
+  fonts/          DejaVu Sans, embedded in the PDF, with its license
 migrations/       SQL for the shared database
 ```
 
