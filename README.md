@@ -18,6 +18,14 @@ chat assistant answers questions in plain English and cites the regulation page
 or map location behind each answer. Each ward can be downloaded as a PDF report,
 and a WhatsApp button lets residents file a complaint directly.
 
+### Why Bangalore?
+
+The approach works for any city or state whose data is scattered online. The
+AI-assisted pipeline does not depend on any particular source: it turns whatever
+it collects into dense vectors for retrieval or into tables for SQL. We chose
+Bengaluru because we know the city and can check its data ourselves, which makes
+the cleaning more thorough and the results more accurate.
+
 ## Features
 
 ### Ward Atlas map
